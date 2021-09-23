@@ -19,7 +19,7 @@ Running tests
 
 .. code-block:: bash
 
-    py.test test_schedule.py --flake8 schedule -v --cov schedule --cov-report term-missing
+    py.test tests/schedule.py --flake8 schedule -v --cov schedule --cov-report term-missing
 
 Formatting the code
 -------------------
