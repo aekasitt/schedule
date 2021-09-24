@@ -3,7 +3,7 @@ import datetime
 import functools
 import mock
 import pytest
-from typing import Callable, Tuple
+from typing import Callable
 
 import schedule
 from schedule import IntervalError, ScheduleError, ScheduleValueError, every, repeat
