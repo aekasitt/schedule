@@ -32,6 +32,7 @@ async def increment(array, index):
     array[index] += 1
 
 @pytest.mark.asyncio
+@pytest.mark.skip(reason="slow demo test")
 async def test_async_sample(set_up):
     duration = 10  # seconds
     test_array = [0] * duration
