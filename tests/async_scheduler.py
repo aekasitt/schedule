@@ -5,7 +5,7 @@ import pytest
 import sys
 from typing import Callable
 
-from .schedule import make_mock_job, mock_datetime
+from .schedule import mock_job, mock_datetime
 
 if sys.version_info >= (3, 6, 0):
     import schedule
@@ -129,9 +129,9 @@ async def test_cancel_async_jobs(setUp):
     assert len(async_scheduler.jobs) == 0
 
 @pytest.mark.asyncio
-async def test_mixed_sync_async_tasks(setUp):
+async def test_mixed_sync_async_tasks(setUp, mock_job):
     async_func = make_async_mock_job()
-    sync_func = make_mock_job()
+    sync_func  = mock_job
 
     async_scheduler.every().second.do(async_func)
     async_scheduler.every().second.do(sync_func)
