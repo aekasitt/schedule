@@ -3,6 +3,7 @@ import datetime
 import mock
 import pytest
 import sys
+import unittest
 from typing import Callable
 
 from .schedule import mock_job, mock_datetime
