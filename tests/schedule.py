@@ -81,10 +81,10 @@ class mock_datetime(object):
 
 
 @pytest.fixture
-def setUp():
+def set_up():
     schedule.clear()
 
-def test_time_units(setUp):
+def test_time_units(set_up):
     assert every().seconds.unit == "seconds"
     assert every().minutes.unit == "minutes"
     assert every().hours.unit == "hours"
@@ -190,20 +190,20 @@ def test_time_units(setUp):
     job_instance.start_day = None
     pytest.raises(ScheduleValueError, job_instance._schedule_next_run)
 
-    # test setUp.latest >= setUp.interval
+    # test set_up.latest >= set_up.interval
     job_instance.latest = 1
     pytest.raises(ScheduleError, job_instance._schedule_next_run)
     job_instance.latest = 3
     pytest.raises(ScheduleError, job_instance._schedule_next_run)
 
-def test_singular_time_units_match_plural_units(setUp):
+def test_singular_time_units_match_plural_units(set_up):
     assert every().second.unit == every().seconds.unit
     assert every().minute.unit == every().minutes.unit
     assert every().hour.unit == every().hours.unit
     assert every().day.unit == every().days.unit
     assert every().week.unit == every().weeks.unit
 
-def test_time_range(setUp, mock_job):
+def test_time_range(set_up, mock_job):
     with mock_datetime(2014, 6, 28, 12, 0):
         # Choose a sample size large enough that it's unlikely the
         # same value will be chosen each time.
@@ -218,14 +218,14 @@ def test_time_range(setUp, mock_job):
         assert min(minutes) >= 5
         assert max(minutes) <= 30
 
-def test_time_range_repr(setUp, mock_job):
+def test_time_range_repr(set_up, mock_job):
 
     with mock_datetime(2014, 6, 28, 12, 0):
         job_repr = repr(every(5).to(30).minutes.do(mock_job))
 
     assert job_repr.startswith("Every 5 to 30 minutes do job()")
 
-def test_at_time(setUp, mock_job):
+def test_at_time(set_up, mock_job):
     assert every().day.at("10:30").do(mock_job).next_run.hour == 10
     assert every().day.at("10:30").do(mock_job).next_run.minute == 30
     assert every().day.at("10:30:50").do(mock_job).next_run.second == 50
@@ -266,7 +266,7 @@ def test_at_time(setUp, mock_job):
     with pytest.raises(IntervalError):
         every(interval=2).sunday
 
-def test_until_time(setUp, mock_job):
+def test_until_time(set_up, mock_job):
     # Check argument parsing
     with mock_datetime(2020, 1, 1, 10, 0, 0) as m:
         assert every().day.until(datetime.datetime(3000, 1, 1, 20, 30)).do(
@@ -342,7 +342,7 @@ def test_until_time(setUp, mock_job):
             assert mock_job.call_count == 0
             assert len(schedule.jobs) == 0
 
-def test_weekday_at_todady(setUp, mock_job):
+def test_weekday_at_todady(set_up, mock_job):
 
     # This date is a wednesday
     with mock_datetime(2020, 11, 25, 22, 38, 5):
@@ -362,7 +362,7 @@ def test_weekday_at_todady(setUp, mock_job):
         assert job.next_run.month == 11
         assert job.next_run.day == 25
 
-def test_at_time_hour(setUp, mock_job):
+def test_at_time_hour(set_up, mock_job):
     with mock_datetime(2010, 1, 6, 12, 20):
         assert every().hour.at(":30").do(mock_job).next_run.hour == 12
         assert every().hour.at(":30").do(mock_job).next_run.minute == 30
@@ -395,7 +395,7 @@ def test_at_time_hour(setUp, mock_job):
         assert every().hour.at("00:40").do(mock_job).next_run.minute == 0
         assert every().hour.at("00:40").do(mock_job).next_run.second == 40
 
-def test_at_time_minute(setUp, mock_job):
+def test_at_time_minute(set_up, mock_job):
     with mock_datetime(2010, 1, 6, 12, 20, 30):
         assert every().minute.at(":40").do(mock_job).next_run.hour == 12
         assert every().minute.at(":40").do(mock_job).next_run.minute == 20
@@ -412,7 +412,7 @@ def test_at_time_minute(setUp, mock_job):
         pytest.raises(ScheduleValueError, every().minute.at, " :30")
         pytest.raises(TypeError, every().minute.at, 2)
 
-def test_next_run_time(setUp, mock_job):
+def test_next_run_time(set_up, mock_job):
     with mock_datetime(2010, 1, 6, 12, 15):
         assert schedule.next_run() is None
         assert every().minute.do(mock_job).next_run.minute == 16
@@ -434,7 +434,7 @@ def test_next_run_time(setUp, mock_job):
             == 16
         )
 
-def test_next_run_time_day_end(setUp, mock_job):
+def test_next_run_time_day_end(set_up, mock_job):
     # At day 1, schedule job to run at daily 23:30
     with mock_datetime(2010, 12, 1, 23, 0, 0):
         job = every().day.at("23:30").do(mock_job)
@@ -457,7 +457,7 @@ def test_next_run_time_day_end(setUp, mock_job):
         assert job.next_run.day == 3
         assert job.next_run.hour == 23
 
-def test_next_run_time_hour_end(setUp, mock_job):
+def test_next_run_time_hour_end(set_up, mock_job):
     with mock_datetime(2010, 10, 10, 12, 0, 0):
         job = every().hour.at(":10").do(mock_job)
         assert job.next_run.hour == 12
@@ -473,7 +473,7 @@ def test_next_run_time_hour_end(setUp, mock_job):
         assert job.next_run.hour == 14
         assert job.next_run.minute == 10
 
-def test_next_run_time_minute_end(setUp, mock_job):
+def test_next_run_time_minute_end(set_up, mock_job):
     with mock_datetime(2010, 10, 10, 10, 10, 0):
         job = every().minute.at(":15").do(mock_job)
         assert job.next_run.minute == 10
@@ -494,14 +494,14 @@ def test_next_run_time_minute_end(setUp, mock_job):
         assert job.next_run.minute == 13
         assert job.next_run.second == 15
 
-def test_run_all(setUp, mock_job):
+def test_run_all(set_up, mock_job):
     every().minute.do(mock_job)
     every().hour.do(mock_job)
     every().day.at("11:00").do(mock_job)
     schedule.run_all()
     assert mock_job.call_count == 3
 
-def test_run_all_with_decorator(setUp, mock_job):
+def test_run_all_with_decorator(set_up, mock_job):
 
     @repeat(every().minute)
     def job1():
@@ -518,7 +518,7 @@ def test_run_all_with_decorator(setUp, mock_job):
     schedule.run_all()
     assert mock_job.call_count == 3
 
-def test_run_all_with_decorator_args(setUp, mock_job):
+def test_run_all_with_decorator_args(set_up, mock_job):
 
     @repeat(every().minute, 1, 2, "three", foo=23, bar={})
     def job(*args, **kwargs):
@@ -527,7 +527,7 @@ def test_run_all_with_decorator_args(setUp, mock_job):
     schedule.run_all()
     mock_job.assert_called_once_with(1, 2, "three", foo=23, bar={})
 
-def test_run_all_with_decorator_defaultargs(setUp, mock_job):
+def test_run_all_with_decorator_defaultargs(set_up, mock_job):
 
     @repeat(every().minute)
     def job(nothing=None):
@@ -536,12 +536,12 @@ def test_run_all_with_decorator_defaultargs(setUp, mock_job):
     schedule.run_all()
     mock_job.assert_called_once_with(None)
 
-def test_job_func_args_are_passed_on(setUp, mock_job):
+def test_job_func_args_are_passed_on(set_up, mock_job):
     every().second.do(mock_job, 1, 2, "three", foo=23, bar={})
     schedule.run_all()
     mock_job.assert_called_once_with(1, 2, "three", foo=23, bar={})
 
-def test_to_string(setUp):
+def test_to_string(set_up):
     def job_fun():
         pass
 
@@ -554,7 +554,7 @@ def test_to_string(setUp):
     assert "foo" in s
     assert "{'bar': 23}" in s
 
-def test_to_repr(setUp):
+def test_to_repr(set_up):
     def job_fun():
         pass
 
@@ -575,11 +575,11 @@ def test_to_repr(setUp):
         )
     )
 
-def test_to_string_lambda_job_func(setUp):
+def test_to_string_lambda_job_func(set_up):
     assert len(str(every().minute.do(lambda: 1))) > 1
     assert len(str(every().day.at("10:30").do(lambda: 1))) > 1
 
-def test_repr_functools_partial_job_func(setUp):
+def test_repr_functools_partial_job_func(set_up):
     def job_fun(arg):
         pass
 
@@ -589,7 +589,7 @@ def test_repr_functools_partial_job_func(setUp):
     assert "bar=True" in job_repr
     assert "somekey=23" in job_repr
 
-def test_to_string_functools_partial_job_func(setUp):
+def test_to_string_functools_partial_job_func(set_up):
     def job_fun(arg):
         pass
 
@@ -599,7 +599,7 @@ def test_to_string_functools_partial_job_func(setUp):
     assert "bar=True" in job_str
     assert "somekey=23" in job_str
 
-def test_run_pending(setUp, mock_job):
+def test_run_pending(set_up, mock_job):
     """Check that run_pending() runs pending jobs.
     We do this by overriding datetime.datetime with mock objects
     that represent increasing system times.
@@ -638,7 +638,7 @@ def test_run_pending(setUp, mock_job):
         schedule.run_pending()
         assert mock_job.call_count == 4
 
-def test_run_every_weekday_at_specific_time_today(setUp, mock_job):
+def test_run_every_weekday_at_specific_time_today(set_up, mock_job):
     with mock_datetime(2010, 1, 6, 13, 16):
         every().wednesday.at("14:12").do(mock_job)
         schedule.run_pending()
@@ -648,7 +648,7 @@ def test_run_every_weekday_at_specific_time_today(setUp, mock_job):
         schedule.run_pending()
         assert mock_job.call_count == 1
 
-def test_run_every_weekday_at_specific_time_past_today(setUp, mock_job):
+def test_run_every_weekday_at_specific_time_past_today(set_up, mock_job):
     with mock_datetime(2010, 1, 6, 13, 16):
         every().wednesday.at("13:15").do(mock_job)
         schedule.run_pending()
@@ -662,7 +662,7 @@ def test_run_every_weekday_at_specific_time_past_today(setUp, mock_job):
         schedule.run_pending()
         assert mock_job.call_count == 1
 
-def test_run_every_n_days_at_specific_time(setUp, mock_job):
+def test_run_every_n_days_at_specific_time(set_up, mock_job):
     with mock_datetime(2010, 1, 6, 11, 29):
         every(2).days.at("11:30").do(mock_job)
         schedule.run_pending()
@@ -688,7 +688,7 @@ def test_run_every_n_days_at_specific_time(setUp, mock_job):
         schedule.run_pending()
         assert mock_job.call_count == 2
 
-def test_next_run_property(setUp, mock_hourly_job, mock_daily_job):
+def test_next_run_property(set_up, mock_hourly_job, mock_daily_job):
     original_datetime = datetime.datetime
     with mock_datetime(2010, 1, 6, 13, 16):
         hourly_job = mock_hourly_job
@@ -699,7 +699,7 @@ def test_next_run_property(setUp, mock_hourly_job, mock_daily_job):
         # Make sure the hourly job is first
         assert schedule.next_run() == original_datetime(2010, 1, 6, 14, 16)
 
-def test_idle_seconds(setUp, mock_job):
+def test_idle_seconds(set_up, mock_job):
     assert schedule.next_run() is None
     assert schedule.idle_seconds() is None
 
@@ -710,7 +710,7 @@ def test_idle_seconds(setUp, mock_job):
         assert schedule.next_run() is None
         assert schedule.idle_seconds() is None
 
-def test_cancel_job(setUp, mock_job):
+def test_cancel_job(set_up, mock_job):
     def stop_job():
         return schedule.CancelJob
 
@@ -730,7 +730,7 @@ def test_cancel_job(setUp, mock_job):
     schedule.cancel_job(mj)
     assert len(schedule.jobs) == 0
 
-def test_cancel_jobs(setUp):
+def test_cancel_jobs(set_up):
     def stop_job():
         return schedule.CancelJob
 
@@ -742,14 +742,14 @@ def test_cancel_jobs(setUp):
     schedule.run_all()
     assert len(schedule.jobs) == 0
 
-def test_tag_type_enforcement(setUp, mock_job1):
+def test_tag_type_enforcement(set_up, mock_job1):
     job1 = every().second.do(mock_job1)
     pytest.raises(TypeError, job1.tag, {})
     pytest.raises(TypeError, job1.tag, 1, "a", [])
     job1.tag(0, "a", True)
     assert len(job1.tags) == 3
 
-def test_get_by_tag(setUp, mock_job):
+def test_get_by_tag(set_up, mock_job):
     every().second.do(mock_job).tag("job1", "tag1")
     every().second.do(mock_job).tag("job2", "tag2", "tag4")
     every().second.do(mock_job).tag("job3", "tag3", "tag4")
@@ -777,7 +777,7 @@ def test_get_by_tag(setUp, mock_job):
     schedule.clear()
     assert len(schedule.jobs) == 0
 
-def test_clear_by_tag(setUp, mock_job1, mock_job2, mock_job3):
+def test_clear_by_tag(set_up, mock_job1, mock_job2, mock_job3):
     every().second.do(mock_job1).tag("tag1")
     every().second.do(mock_job2).tag("tag1", "tag2")
     every().second.do(mock_job3).tag(
@@ -796,7 +796,7 @@ def test_clear_by_tag(setUp, mock_job1, mock_job2, mock_job3):
     schedule.clear()
     assert len(schedule.jobs) == 0
 
-def test_misconfigured_job_wont_break_scheduler(setUp):
+def test_misconfigured_job_wont_break_scheduler(set_up):
     """
     Ensure an interrupted job definition chain won't break
     the scheduler instance permanently.
