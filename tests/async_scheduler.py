@@ -16,9 +16,11 @@ else:
 
 async_scheduler = schedule.AsyncScheduler()
 
+
 @pytest.fixture
 def set_up():
     async_scheduler.clear()
+
 
 @pytest.fixture
 def async_mock_job(name="async_job") -> Callable:
@@ -26,11 +28,14 @@ def async_mock_job(name="async_job") -> Callable:
     job.__name__ = name
     return job
 
+
 async def stop_job():
     return schedule.CancelJob
 
+
 async def increment(array, index):
     array[index] += 1
+
 
 @pytest.mark.asyncio
 @pytest.mark.skip(reason="slow demo test")
@@ -55,6 +60,7 @@ async def test_async_sample(set_up):
         expected = int(expected) if expected != int(expected) else expected - 1
         error_msg = "unexpected value for {}th".format(position)
         assert value == expected, error_msg
+
 
 @pytest.mark.asyncio
 async def test_async_run_pending(set_up, async_mock_job):
@@ -86,6 +92,7 @@ async def test_async_run_pending(set_up, async_mock_job):
         await async_scheduler.run_pending()
         assert async_mock_job.call_count == 4
 
+
 @pytest.mark.asyncio
 async def test_async_run_all(set_up, async_mock_job):
     async_scheduler.every().minute.do(async_mock_job)
@@ -94,11 +101,13 @@ async def test_async_run_all(set_up, async_mock_job):
     await async_scheduler.run_all()
     assert async_mock_job.call_count == 3
 
+
 @pytest.mark.asyncio
 async def test_async_job_func_args_are_passed_on(set_up, async_mock_job):
     async_scheduler.every().second.do(async_mock_job, 1, 2, "three", foo=23, bar={})
     await async_scheduler.run_all()
     async_mock_job.assert_called_once_with(1, 2, "three", foo=23, bar={})
+
 
 @pytest.mark.asyncio
 async def test_cancel_async_job(set_up, async_mock_job):
@@ -116,6 +125,7 @@ async def test_cancel_async_job(set_up, async_mock_job):
     async_scheduler.cancel_job(mj)
     assert len(async_scheduler.jobs) == 0
 
+
 @pytest.mark.asyncio
 async def test_cancel_async_jobs(set_up):
     async_scheduler.every().second.do(stop_job)
@@ -126,10 +136,11 @@ async def test_cancel_async_jobs(set_up):
     await async_scheduler.run_all()
     assert len(async_scheduler.jobs) == 0
 
+
 @pytest.mark.asyncio
 async def test_mixed_sync_async_tasks(set_up, mock_job, async_mock_job):
     async_func = async_mock_job
-    sync_func  = mock_job
+    sync_func = mock_job
 
     async_scheduler.every().second.do(async_func)
     async_scheduler.every().second.do(sync_func)
